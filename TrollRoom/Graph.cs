@@ -149,10 +149,12 @@ namespace TrollRoom
             }
             foreach (var edge in Edges)
             {
-                var edgeCopy = new Edge(
-                    graphCopy.Nodes.Values.First(x => x.Id == edge.Origin.Id),
-                    edge.Direction,
-                    graphCopy.Nodes.Values.First(x => x.Id == edge.Destination.Id));
+                Node origin;
+                Node destination;
+                graphCopy.Nodes.TryGetValue(edge.Origin.Id, out origin);
+                graphCopy.Nodes.TryGetValue(edge.Destination.Id, out destination);
+
+                var edgeCopy = new Edge(origin, edge.Direction, destination);
                 graphCopy.Edges.Add(edgeCopy);
             }
             if (PlayerCurrentNode != null)

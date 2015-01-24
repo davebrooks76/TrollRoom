@@ -51,7 +51,7 @@ namespace TrollRoom
         public Graph FindBestGraphLayout(Graph graph)
         {
             var maxScore = graph.Edges.Count * 2;
-            var generationLimit = 100000;
+            var generationLimit = 100;
             var pool = CreateInitialPool(graph, 100);
             var currentGeneration = 0;
             double bestFitness = pool.Max(x => x.Fitness);
