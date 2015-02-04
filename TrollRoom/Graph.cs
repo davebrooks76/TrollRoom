@@ -88,7 +88,8 @@ namespace TrollRoom
                         break;
                 }
             }
-            Fitness = (alignmentScore * alignmentScore) + proximityScore;
+            Fitness = alignmentScore;
+            //Fitness = alignmentScore + (proximityScore * (generation/50));
         }
 
         public bool IsValid

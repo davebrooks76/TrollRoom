@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace TrollRoom
 {
     public class GeneticLayout
-    {  
+    {
+        private const int bitsLength = 5;
+        private const double crossoverRate = 0.7;
+        private const double mutationRate = 0.001;
+        private const int generationLimit = 100;
+        private const int poolSize = 100;
+
         private Random random = new Random();
-        private int bitsLength = 5;
 
         private List<Graph> CreateInitialPool(Graph graph, int size)
         {
@@ -24,7 +30,7 @@ namespace TrollRoom
                 }
             }
 
-            
+
             return pool;
         }
 
@@ -51,8 +57,8 @@ namespace TrollRoom
         public Graph FindBestGraphLayout(Graph graph)
         {
             var maxScore = graph.Edges.Count * 2;
-            var generationLimit = 100;
-            var pool = CreateInitialPool(graph, 100);
+            
+            var pool = CreateInitialPool(graph, poolSize);
             var currentGeneration = 0;
             double bestFitness = pool.Max(x => x.Fitness);
             var bestGraph = pool.First(x => x.Fitness == bestFitness);
@@ -64,7 +70,7 @@ namespace TrollRoom
             {
                 if (bestGraph.Fitness == maxScore)
                     return bestGraph;
-                pool = ProcessPool(graph, pool, currentGeneration);
+                pool = Task.Run(() => ProcessPool(graph, pool, currentGeneration, poolSize)).Result;
                 var poolBestFitness = pool.Max(x => x.Fitness);
                 if (poolBestFitness > bestFitness)
                 {
@@ -79,94 +85,137 @@ namespace TrollRoom
             return bestGraph;
         }
 
-        private List<Graph> ProcessPool(Graph graph, List<Graph> pool, int generation)
+        private List<Graph> ProcessPool(Graph graph, List<Graph> pool, int generation, int poolSize)
         {
+            // create a list of tasks for each mating operation
+            var mateTasks = new Task<Graph>[poolSize];
             var newPool = new List<Graph>();
-            double crossoverRate = 0.7;
-            double mutationRate = 0.001;
+            var maxInvalid = 0;
+            
+            //for (int z = 0; z < poolSize; z++)
+            //{
+            //    mateTasks[z] = new Task<Graph>(() => 
+            //    {
+            //        var invalid = 0;
+            //        var toRet = GetNewGraphFromPool(graph, pool, generation);
+            //        while (!toRet.IsValid)
+            //        {
+            //            invalid++;
+            //            toRet = GetNewGraphFromPool(graph, pool, generation);
+            //        }
+            //        if (invalid > maxInvalid)
+            //            maxInvalid = invalid;
+            //        return toRet;
+            //    });
+            //}
 
-            while (newPool.Count < 100)
+            //Parallel.ForEach(mateTasks, task => task.Start());
+            //Task.WaitAll(mateTasks);
+
+            //foreach (var task in mateTasks)
+            //{
+            //    newPool.Add(task.Result);
+            //}
+
+            for (int z = 0; z < poolSize; z++)
             {
-                var mate1 = SelectGraph(pool);
-                var mate2 = SelectGraph(pool);
-
-                var child1Bits = new List<BitArray>(mate1.Bits.Count);
-                var child2Bits = new List<BitArray>(mate1.Bits.Count);
-                var child1 = graph.Copy();
-                var child2 = graph.Copy();
-
-                double randomCrossover = random.NextDouble();
-
-                if (randomCrossover < crossoverRate)
+                var invalid = 0;
+                var toRet = GetNewGraphFromPool(graph, pool, generation);
+                while (!toRet.IsValid)
                 {
-                    //these next two values indicate the crossover point
-                    int randomBitArray = random.Next(0, mate1.Bits.Count);
-                    int randomIndex = random.Next(0, bitsLength);
-                    //swap the bits at the crossover
-                    for (int i = 0; i < mate1.Bits.Count; i++)
-                    {
-                        if (i < randomBitArray)
-                        {
-                            child1Bits.Add(new BitArray(mate1.Bits[i]));
-                            child2Bits.Add(new BitArray(mate2.Bits[i]));
-                        }
-                        if (i == randomBitArray)
-                        {
-                            var splice1 = new BitArray(bitsLength);
-                            var splice2 = new BitArray(bitsLength);
-                            for (int j = 0; j < bitsLength; j++)
-                            {
-                                if (j < randomIndex)
-                                {
-                                    splice1[j] = mate1.Bits[i][j];
-                                    splice2[j] = mate2.Bits[i][j];
-                                }
-                                else
-                                {
-                                    splice1[j] = mate2.Bits[i][j];
-                                    splice2[j] = mate1.Bits[i][j];
-                                }
-                            }
-                            child1Bits.Add(splice1);
-                            child2Bits.Add(splice2);
-                        }
-                        if (i > randomBitArray)
-                        {
-                            child1Bits.Add(new BitArray(mate2.Bits[i]));
-                            child2Bits.Add(new BitArray(mate1.Bits[i]));
-                        }
-                    }
+                    invalid++;
+                    toRet = GetNewGraphFromPool(graph, pool, generation);
                 }
-                else
-                { 
-                    //just make copies of mate1 and mate2
-                    for (int i = 0; i < mate1.Bits.Count; i++)
+                if (invalid > maxInvalid)
+                    maxInvalid = invalid;
+                newPool.Add(toRet);
+            }
+            
+            return newPool;
+        }
+
+        private Graph GetNewGraphFromPool(Graph graph, List<Graph> pool, int generation)
+        { 
+            var mate1 = SelectGraph(pool);
+            var mate2 = SelectGraph(pool);
+
+            var child1Bits = new List<BitArray>(mate1.Bits.Count);
+            //var child2Bits = new List<BitArray>(mate1.Bits.Count);
+            var child1 = graph.Copy();
+            //var child2 = graph.Copy();
+
+            double randomCrossover = random.NextDouble();
+
+            if (randomCrossover < crossoverRate)
+            {
+                //these next two values indicate the crossover point
+                int randomBitArray = random.Next(0, mate1.Bits.Count);
+                int randomIndex = random.Next(0, bitsLength);
+                //swap the bits at the crossover
+                for (int i = 0; i < mate1.Bits.Count; i++)
+                {
+                    if (i < randomBitArray)
                     {
                         child1Bits.Add(new BitArray(mate1.Bits[i]));
-                        child2Bits.Add(new BitArray(mate2.Bits[i]));
+                        //child2Bits.Add(new BitArray(mate2.Bits[i]));
+                    }
+                    if (i == randomBitArray)
+                    {
+                        var splice1 = new BitArray(bitsLength);
+                        var splice2 = new BitArray(bitsLength);
+                        for (int j = 0; j < bitsLength; j++)
+                        {
+                            if (j < randomIndex)
+                            {
+                                splice1[j] = mate1.Bits[i][j];
+                                splice2[j] = mate2.Bits[i][j];
+                            }
+                            else
+                            {
+                                splice1[j] = mate2.Bits[i][j];
+                                splice2[j] = mate1.Bits[i][j];
+                            }
+                        }
+                        child1Bits.Add(splice1);
+                        //child2Bits.Add(splice2);
+                    }
+                    if (i > randomBitArray)
+                    {
+                        child1Bits.Add(new BitArray(mate2.Bits[i]));
+                        //child2Bits.Add(new BitArray(mate1.Bits[i]));
                     }
                 }
-
-                MutateEncodedGraph(child1Bits, mutationRate);
-                MutateEncodedGraph(child2Bits, mutationRate);
-
-                child1.Bits = child1Bits;
-                child2.Bits = child2Bits;
-
-                if (child1.IsValid)
+            }
+            else
+            {
+                //just make copies of mate1 and mate2
+                for (int i = 0; i < mate1.Bits.Count; i++)
                 {
-                    child1.CalculateFitness(generation);
-                    newPool.Add(child1);
-                }
-
-
-                if (child2.IsValid)
-                {
-                    child2.CalculateFitness(generation);
-                    newPool.Add(child2);
+                    child1Bits.Add(new BitArray(mate1.Bits[i]));
+                    //child2Bits.Add(new BitArray(mate2.Bits[i]));
                 }
             }
-            return newPool;
+
+            MutateEncodedGraph(child1Bits, mutationRate);
+            //MutateEncodedGraph(child2Bits, mutationRate);
+
+            child1.Bits = child1Bits;
+            //child2.Bits = child2Bits;
+
+            //if (child1.IsValid)
+            //{
+            //    child1.CalculateFitness(generation);
+            //    newPool.Add(child1);
+            //}
+
+
+            //if (child2.IsValid)
+            //{
+            //    child2.CalculateFitness(generation);
+            //    newPool.Add(child2);
+            //}
+            child1.CalculateFitness(generation);
+            return child1;
         }
 
         private void MutateEncodedGraph(List<BitArray> encodedGraph, double mutationRate)
