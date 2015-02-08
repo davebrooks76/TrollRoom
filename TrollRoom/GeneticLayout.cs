@@ -12,8 +12,8 @@ namespace TrollRoom
         private const int bitsLength = 5;
         private const double crossoverRate = 0.7;
         private const double mutationRate = 0.001;
-        private const int generationLimit = 100;
-        private const int poolSize = 100;
+        private const int generationLimit = 1000;
+        private const int poolSize = 300;
 
         private Random random = new Random();
 
@@ -91,66 +91,66 @@ namespace TrollRoom
             var mateTasks = new Task<Graph>[poolSize];
             var newPool = new List<Graph>();
             var maxInvalid = 0;
-            
-            //for (int z = 0; z < poolSize; z++)
-            //{
-            //    mateTasks[z] = new Task<Graph>(() => 
-            //    {
-            //        var invalid = 0;
-            //        var toRet = GetNewGraphFromPool(graph, pool, generation);
-            //        while (!toRet.IsValid)
-            //        {
-            //            invalid++;
-            //            toRet = GetNewGraphFromPool(graph, pool, generation);
-            //        }
-            //        if (invalid > maxInvalid)
-            //            maxInvalid = invalid;
-            //        return toRet;
-            //    });
-            //}
-
-            //Parallel.ForEach(mateTasks, task => task.Start());
-            //Task.WaitAll(mateTasks);
-
-            //foreach (var task in mateTasks)
-            //{
-            //    newPool.Add(task.Result);
-            //}
 
             for (int z = 0; z < poolSize; z++)
             {
-                var invalid = 0;
-                var toRet = GetNewGraphFromPool(graph, pool, generation);
-                while (!toRet.IsValid)
+                mateTasks[z] = new Task<Graph>(() =>
                 {
-                    invalid++;
-                    toRet = GetNewGraphFromPool(graph, pool, generation);
-                }
-                if (invalid > maxInvalid)
-                    maxInvalid = invalid;
-                newPool.Add(toRet);
+                    var invalid = 0;
+                    var toRet = GetNewGraphFromPool(graph, pool, generation, ThreadLocalRandom.Instance);
+                    while (!toRet.IsValid)
+                    {
+                        invalid++;
+                        toRet = GetNewGraphFromPool(graph, pool, generation, ThreadLocalRandom.Instance);
+                    }
+                    if (invalid > maxInvalid)
+                        maxInvalid = invalid;
+                    return toRet;
+                });
             }
+
+            Parallel.ForEach(mateTasks, task => task.Start());
+            Task.WaitAll(mateTasks);
+
+            foreach (var task in mateTasks)
+            {
+                newPool.Add(task.Result);
+            }
+
+            //for (int z = 0; z < poolSize; z++)
+            //{
+            //    var invalid = 0;
+            //    var toRet = GetNewGraphFromPool(graph, pool, generation);
+            //    while (!toRet.IsValid)
+            //    {
+            //        invalid++;
+            //        toRet = GetNewGraphFromPool(graph, pool, generation);
+            //    }
+            //    if (invalid > maxInvalid)
+            //        maxInvalid = invalid;
+            //    newPool.Add(toRet);
+            //}
             
             return newPool;
         }
 
-        private Graph GetNewGraphFromPool(Graph graph, List<Graph> pool, int generation)
+        private Graph GetNewGraphFromPool(Graph graph, List<Graph> pool, int generation, Random threadRandom)
         { 
-            var mate1 = SelectGraph(pool);
-            var mate2 = SelectGraph(pool);
+            var mate1 = SelectGraph(pool, threadRandom);
+            var mate2 = SelectGraph(pool, threadRandom);
 
             var child1Bits = new List<BitArray>(mate1.Bits.Count);
             //var child2Bits = new List<BitArray>(mate1.Bits.Count);
             var child1 = graph.Copy();
             //var child2 = graph.Copy();
 
-            double randomCrossover = random.NextDouble();
+            double randomCrossover = threadRandom.NextDouble();
 
             if (randomCrossover < crossoverRate)
             {
                 //these next two values indicate the crossover point
-                int randomBitArray = random.Next(0, mate1.Bits.Count);
-                int randomIndex = random.Next(0, bitsLength);
+                int randomBitArray = threadRandom.Next(0, mate1.Bits.Count);
+                int randomIndex = threadRandom.Next(0, bitsLength);
                 //swap the bits at the crossover
                 for (int i = 0; i < mate1.Bits.Count; i++)
                 {
@@ -162,18 +162,18 @@ namespace TrollRoom
                     if (i == randomBitArray)
                     {
                         var splice1 = new BitArray(bitsLength);
-                        var splice2 = new BitArray(bitsLength);
+                        //var splice2 = new BitArray(bitsLength);
                         for (int j = 0; j < bitsLength; j++)
                         {
                             if (j < randomIndex)
                             {
                                 splice1[j] = mate1.Bits[i][j];
-                                splice2[j] = mate2.Bits[i][j];
+                                //splice2[j] = mate2.Bits[i][j];
                             }
                             else
                             {
                                 splice1[j] = mate2.Bits[i][j];
-                                splice2[j] = mate1.Bits[i][j];
+                                //splice2[j] = mate1.Bits[i][j];
                             }
                         }
                         child1Bits.Add(splice1);
@@ -196,7 +196,7 @@ namespace TrollRoom
                 }
             }
 
-            MutateEncodedGraph(child1Bits, mutationRate);
+            MutateEncodedGraph(child1Bits, mutationRate, threadRandom);
             //MutateEncodedGraph(child2Bits, mutationRate);
 
             child1.Bits = child1Bits;
@@ -218,13 +218,13 @@ namespace TrollRoom
             return child1;
         }
 
-        private void MutateEncodedGraph(List<BitArray> encodedGraph, double mutationRate)
+        private void MutateEncodedGraph(List<BitArray> encodedGraph, double mutationRate, Random threadRandom)
         {
             for (int i = 0; i < encodedGraph.Count; i++)
             {
                 for (int j = 0; j < bitsLength; j++)
                 {
-                    var randomMutation = random.NextDouble();
+                    var randomMutation = threadRandom.NextDouble();
                     if (randomMutation <= mutationRate)
                     {
                         encodedGraph[i][j] = !encodedGraph[i][j];
@@ -233,11 +233,11 @@ namespace TrollRoom
             }
         }
 
-        private Graph SelectGraph(List<Graph> pool)
+        private Graph SelectGraph(List<Graph> pool, Random threadRandom)
         {
             double minimum = pool.Min(x => x.Fitness);
             double maximum = pool.Sum(x => x.Fitness);
-            double randomSelect = random.NextDouble() * (maximum - minimum) + minimum;
+            double randomSelect = threadRandom.NextDouble() * (maximum - minimum) + minimum;
             double currentScore = 0.0;
             foreach (var graph in pool)
             {
