@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace TrollRoom
 {
-    class Program
+    public class Map
     {
-        static void Main(string[] args)
+        public Map()
         {
-            
+            Rooms = new Dictionary<int, Room>();
         }
+
+        public Dictionary<int, Room> Rooms { get; set; }
     }
 }
