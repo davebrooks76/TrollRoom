@@ -28,7 +28,7 @@ namespace TrollRoom
 
         public static string ToTestString(this Layout layout)
         {
-            var coordinates = layout.Bits.ToByteArray();
+            var coordinates = layout.Coordinates;
             var stringBuilder = new StringBuilder();
             for (var y = 255; y >= 0; y--)
             {

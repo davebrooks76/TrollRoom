@@ -79,7 +79,7 @@ namespace TrollRoomTests
                 0, 0   //J  
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(1, score);
@@ -106,7 +106,7 @@ namespace TrollRoomTests
                 2, 0,   //B
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(0.75, score);
@@ -133,7 +133,7 @@ namespace TrollRoomTests
                 1, 1,   //B
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(0.75, score);
@@ -160,7 +160,7 @@ namespace TrollRoomTests
                 1, 1,   //B
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(0, score);
@@ -221,7 +221,7 @@ namespace TrollRoomTests
                 2, 0   //J  
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(1, score);

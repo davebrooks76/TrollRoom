@@ -79,7 +79,7 @@ namespace TrollRoomTests
                 0, 0   //J  
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             // 4 exits have distance 1
@@ -108,7 +108,7 @@ namespace TrollRoomTests
                 32, 0  //B
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(0, score);
@@ -138,7 +138,7 @@ namespace TrollRoomTests
                 0, 0  //D
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
 
             var score = scorer.Score(map, layout);
             Assert.AreEqual(0, score);

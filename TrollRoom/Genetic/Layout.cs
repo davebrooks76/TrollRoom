@@ -10,25 +10,15 @@ namespace TrollRoom
     public class Layout
     {
         public Map Map;
-        private byte[] bytes;
 
         public Layout(Map map)
         {
             Map = map;
+            Coordinates = new byte[map.Rooms.Count*2];
         }
 
-        public BitArray Bits { get; set; }
+        public byte[] Coordinates { get; set; }
 
         public double FitnessScore { get; set; }
-
-        public byte[] ToByteArray()
-        {
-            if (this.bytes == null)
-            {
-                bytes = new byte[Map.Rooms.Count * 2];
-                 
-            }
-            return bytes;
-        }
     }
 }

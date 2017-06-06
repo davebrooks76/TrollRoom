@@ -7,3 +7,12 @@ C:\Users\Dave\documents\visual studio 2015\Projects\TrollRoom\TrollRoomTests\bin
 C:\Users\Dave\documents\visual studio 2015\Projects\TrollRoom\TrollRoomTests\bin\Debug\nunit.framework.xml
 C:\Users\Dave\documents\visual studio 2015\Projects\TrollRoom\TrollRoomTests\obj\Debug\TrollRoomTests.dll
 C:\Users\Dave\documents\visual studio 2015\Projects\TrollRoom\TrollRoomTests\obj\Debug\TrollRoomTests.pdb
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\TrollRoomTests.dll
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\TrollRoomTests.pdb
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\nunit.framework.dll
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\TrollRoom.exe
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\TrollRoom.pdb
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\bin\Debug\nunit.framework.xml
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\obj\Debug\TrollRoomTests.csprojResolveAssemblyReference.cache
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\obj\Debug\TrollRoomTests.dll
+C:\git\TrollRoom\TrollRoom\TrollRoomTests\obj\Debug\TrollRoomTests.pdb

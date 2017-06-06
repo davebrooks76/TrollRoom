@@ -11,7 +11,7 @@ namespace TrollRoom
         public double Score(Map map, Layout layout)
         {
             var totalRooms = map.Rooms.Count;
-            var coordinates = layout.Bits.ToByteArray();
+            var coordinates = layout.Coordinates;
             
             var distinctCoordinates = new HashSet<KeyValuePair<int, int>>();
 

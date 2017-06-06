@@ -16,7 +16,7 @@ namespace TrollRoom
         private const int GenerationCountLimit = 1000000;
         private const int PopulationSize = 100; //even number
         private const double CrossoverRate = 0.7;
-        private const double MutationRate = 0.00;
+        private const double MutationRate = 0.01;
 
         private readonly Map map;
         private Random random = new Random();
@@ -65,32 +65,28 @@ namespace TrollRoom
                 double randomCrossover = random.NextDouble();
                 if (randomCrossover < CrossoverRate)
                 {
-                    int randomIndex = random.Next(0, map.Rooms.Count * 16);
-                    var splice1 = new BitArray(map.Rooms.Count * 16);
-                    var splice2 = new BitArray(map.Rooms.Count * 16);
-                    for (int j = 0; j < mate1.Bits.Length; j++)
+                    int randomIndex = random.Next(1, map.Rooms.Count - 1) * 2;
+                    for (int i = 0; i < mate1.Coordinates.Length; i ++)
                     {
-                        if (j < randomIndex)
+                        if (i < randomIndex)
                         {
-                            splice1[j] = mate1.Bits[j];
-                            splice2[j] = mate2.Bits[j];
+                            child1.Coordinates[i] = mate1.Coordinates[i];
+                            child2.Coordinates[i] = mate2.Coordinates[i];
                         }
                         else
                         {
-                            splice1[j] = mate2.Bits[j];
-                            splice2[j] = mate1.Bits[j];
+                            child1.Coordinates[i] = mate2.Coordinates[i];
+                            child2.Coordinates[i] = mate1.Coordinates[i];
                         }
                     }
-                    child1.Bits = splice1;
-                    child2.Bits = splice2;
                 } 
                 else
                 {
                     //just make copies of mate1 and mate2
-                    for (int i = 0; i < mate1.Bits.Count; i++)
+                    for (int i = 0; i < mate1.Coordinates.Length; i++)
                     {
-                        child1.Bits = new BitArray(mate1.Bits);
-                        child2.Bits = new BitArray(mate2.Bits);
+                        child1.Coordinates[i] = mate1.Coordinates[i];
+                        child2.Coordinates[i] = mate2.Coordinates[i];
                     }
                 }
                 MutateLayout(child1, MutationRate);
@@ -107,15 +103,14 @@ namespace TrollRoom
 
         private void MutateLayout(Layout layout, double mutationRate)
         {
-            for (int i = 0; i < map.Rooms.Count * 2; i++)
+            for (int i = 0; i < layout.Coordinates.Length; i++)
             {
-                for (int j = 0; j < bitsLength; j++)
+                var randomMutation = random.NextDouble();
+                if (randomMutation <= mutationRate)
                 {
-                    var randomMutation = random.NextDouble();
-                    if (randomMutation <= mutationRate)
-                    {
-                        layout.Bits[i * j] = !layout.Bits[i * j];
-                    }
+                    var newCoordinate = Convert.ToInt32(layout.Coordinates[i]) + random.Next(-10, 10);
+                    if (newCoordinate >= 0 && newCoordinate <= 63)
+                        layout.Coordinates[i] = (byte)newCoordinate;
                 }
             }
         }
@@ -146,7 +141,7 @@ namespace TrollRoom
                 {
                     coordinates.Add((byte)random.Next(0, maxCoordinateValue));
                 }
-                layout.Bits = coordinates.ToArray().ToBitArray();
+                layout.Coordinates = coordinates.ToArray();
                 ScoreLayout(layout);
                 population.Add(layout);
             }
@@ -156,10 +151,10 @@ namespace TrollRoom
 
         private void ScoreLayout(Layout layout)
         {
-            var generalDirectionLayoutScorer = new GeneralDirectionLayoutScorer();
-            //var angleLayoutScorer = new AngleLayoutScorer();
+            //var generalDirectionLayoutScorer = new GeneralDirectionLayoutScorer();
+            var angleLayoutScorer = new AngleLayoutScorer();
             //var collisionLayoutScorer = new CollisionLayoutScorer(bitsLength);
-            //var distanceLayoutScorer = new DistanceLayoutScorer(bitsLength);
+            var distanceLayoutScorer = new DistanceLayoutScorer(bitsLength);
             //var clusterLayoutScorer = new ClusterLayoutScorer(bitsLength);
 
             //var totalScore = angleLayoutScorer.Score(_map, layout)
@@ -168,8 +163,9 @@ namespace TrollRoom
 
             //var totalScore = distanceLayoutScorer.Score(map, layout);
 
-            var totalScore = generalDirectionLayoutScorer.Score(map, layout);
-            layout.FitnessScore = totalScore.Remap(0, 1, 0, 1);
+            var totalScore = angleLayoutScorer.Score(map, layout);
+            totalScore += distanceLayoutScorer.Score(map, layout);
+            layout.FitnessScore = totalScore.Remap(0, 2, 0, 1);
             //Debug.WriteLine(layout.FitnessScore);
         }
     }

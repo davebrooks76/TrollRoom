@@ -10,7 +10,7 @@ namespace TrollRoom.Genetic.LayoutScorers
     {
         public double Score(Map map, Layout layout)
         {
-            var coordinates = layout.Bits.ToByteArray();
+            var coordinates = layout.Coordinates;
             double correctExits = 0;
             double totalExits = 0;
 

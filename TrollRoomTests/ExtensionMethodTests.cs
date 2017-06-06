@@ -77,7 +77,7 @@ namespace TrollRoomTests
                 0, 0   //J  
             };
 
-            layout.Bits = byteCoordinates.ToArray().ToBitArray();
+            layout.Coordinates = byteCoordinates.ToArray();
             var testString = layout.ToTestString();
             Assert.AreEqual(".CD..\r\nBI.E.\r\nA..F.\r\n.HG..\r\nJ....\r\n", testString);
         }

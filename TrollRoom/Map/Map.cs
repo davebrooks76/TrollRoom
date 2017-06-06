@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace TrollRoom
 {
+    // A map is an abstract *concept* of a game map.  It has rooms, which have exits, which each have a direction (e.g. N, S, E etc.), and a destination room.
+    // It does not contain any positioning information for the rooms.
     public class Map
     {
         public Map()

@@ -10,7 +10,7 @@ namespace TrollRoom
     {
         public double Score(Map map, Layout layout)
         {
-            var coordinates = layout.Bits.ToByteArray();
+            var coordinates = layout.Coordinates;
             double maxOffset = 0;
             double totalOffset = 0;
 

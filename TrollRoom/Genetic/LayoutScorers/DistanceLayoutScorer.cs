@@ -16,7 +16,7 @@ namespace TrollRoom.Genetic.LayoutScorers
 
         public double Score(Map map, Layout layout)
         {
-            var coordinates = layout.Bits.ToByteArray();
+            var coordinates = layout.Coordinates;
             double maxDistance = 0;
             double distance = 0;
 
@@ -32,7 +32,14 @@ namespace TrollRoom.Genetic.LayoutScorers
                     var destinationRoomX = coordinates[destinationRoom.Id * 2];
                     var destinationRoomY = coordinates[destinationRoom.Id * 2 + 1];
 
+                    var distanceToAdd = GetDistance(currentRoomX, currentRoomY, destinationRoomX, destinationRoomY);
+                    if (distanceToAdd == 0)
+                    {
+                        //collision
+                        distance += 10;
+                    }
                     distance += GetDistance(currentRoomX, currentRoomY, destinationRoomX, destinationRoomY);
+
                     maxDistance += Math.Sqrt(Math.Pow(2, bitsLength + 6));
                 }
             }
