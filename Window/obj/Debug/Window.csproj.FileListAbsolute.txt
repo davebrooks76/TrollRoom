@@ -1,0 +1,11 @@
+C:\git\TrollRoom\TrollRoom\Window\bin\Debug\Window.exe.config
+C:\git\TrollRoom\TrollRoom\Window\bin\Debug\Window.exe
+C:\git\TrollRoom\TrollRoom\Window\bin\Debug\Window.pdb
+C:\git\TrollRoom\TrollRoom\Window\bin\Debug\TrollRoom.exe
+C:\git\TrollRoom\TrollRoom\Window\bin\Debug\TrollRoom.pdb
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.csprojResolveAssemblyReference.cache
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.Form1.resources
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.Properties.Resources.resources
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.csproj.GenerateResource.Cache
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.exe
+C:\git\TrollRoom\TrollRoom\Window\obj\Debug\Window.pdb

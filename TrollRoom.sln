@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrollRoom", "TrollRoom\Trol
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrollRoomTests", "TrollRoomTests\TrollRoomTests.csproj", "{5BF4376D-BD59-4C18-8F3A-98CA5EB1D81E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Window", "Window\Window.csproj", "{8234D8E6-B344-4866-A731-08291FFD834E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5BF4376D-BD59-4C18-8F3A-98CA5EB1D81E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BF4376D-BD59-4C18-8F3A-98CA5EB1D81E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BF4376D-BD59-4C18-8F3A-98CA5EB1D81E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8234D8E6-B344-4866-A731-08291FFD834E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8234D8E6-B344-4866-A731-08291FFD834E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8234D8E6-B344-4866-A731-08291FFD834E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8234D8E6-B344-4866-A731-08291FFD834E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

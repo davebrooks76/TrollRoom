@@ -13,10 +13,10 @@ namespace TrollRoom
 {
     public class GeneticLayoutGenerator : ILayoutGenerator
     {
-        private const int GenerationCountLimit = 1000000;
+        private const int GenerationCountLimit = 20000;
         private const int PopulationSize = 100; //even number
         private const double CrossoverRate = 0.7;
-        private const double MutationRate = 0.01;
+        private const double MutationRate = 0.001;
 
         private readonly Map map;
         private Random random = new Random();
@@ -26,6 +26,36 @@ namespace TrollRoom
 
         private const int bitsLength = 5; //8 is the max
         private int maxCoordinateValue = (int)Math.Pow(2, bitsLength);
+        public Layout overallBestLayout;
+
+        #region events
+
+        public class GenerationCompleteEventArgs : EventArgs
+        {
+            private string bestLayoutTestString;
+
+            public GenerationCompleteEventArgs(string bestLayoutTestString)
+            {
+                this.bestLayoutTestString = bestLayoutTestString;
+            }
+
+            public string BestLayoutTestString
+            {
+                get { return this.bestLayoutTestString; }
+                set { bestLayoutTestString = value; }
+            }
+        }
+
+        public event GenerationCompleteHandler GenerationComplete;
+        private GenerationCompleteEventArgs e = null;
+        public delegate void GenerationCompleteHandler(GeneticLayoutGenerator geneticLayoutGenerator, GenerationCompleteEventArgs e);
+
+        public void Start()
+        {
+            this.GenerateLayout();
+        }
+
+        #endregion
 
         public GeneticLayoutGenerator(Map map)
         {
@@ -35,7 +65,7 @@ namespace TrollRoom
 
         public Layout GenerateLayout()
         {
-            var overallBestLayout = new Layout(map) {FitnessScore = 0};
+            overallBestLayout = new Layout(map) {FitnessScore = 0};
 
             currentPopulation = CreatePopulation();
             while (generationCounter < GenerationCountLimit)
@@ -44,11 +74,18 @@ namespace TrollRoom
                 newPopulation = BreedPopulation();
                 var maxScore = newPopulation.Max(x => x.FitnessScore);
 
+                //var item = db.Items.OrderByDescending(i => i.Value).FirstOrDefault();
+                var bestLayout = newPopulation.OrderByDescending(l => l.FitnessScore).FirstOrDefault();
                 if (maxScore > overallBestLayout.FitnessScore)
                     overallBestLayout = newPopulation.First(x => x.FitnessScore == maxScore);
                 currentPopulation = new List<Layout>(newPopulation);
                 //Debug.WriteLine(newPopulation.Max(x=>x.FitnessScore));
-                 generationCounter++;
+                generationCounter++;
+                if (GenerationComplete != null)
+                {
+                    e = new GenerationCompleteEventArgs(bestLayout.ToTestString());
+                    GenerationComplete(this, e);
+                }
             }
             
             return overallBestLayout;
@@ -108,7 +145,8 @@ namespace TrollRoom
                 var randomMutation = random.NextDouble();
                 if (randomMutation <= mutationRate)
                 {
-                    var newCoordinate = Convert.ToInt32(layout.Coordinates[i]) + random.Next(-10, 10);
+                    var modifier = random.Next(-5, 5);
+                    var newCoordinate = Convert.ToInt32(layout.Coordinates[i]) + modifier;
                     if (newCoordinate >= 0 && newCoordinate <= 63)
                         layout.Coordinates[i] = (byte)newCoordinate;
                 }
@@ -154,7 +192,7 @@ namespace TrollRoom
             //var generalDirectionLayoutScorer = new GeneralDirectionLayoutScorer();
             var angleLayoutScorer = new AngleLayoutScorer();
             //var collisionLayoutScorer = new CollisionLayoutScorer(bitsLength);
-            var distanceLayoutScorer = new DistanceLayoutScorer(bitsLength);
+            //var distanceLayoutScorer = new DistanceLayoutScorer(bitsLength);
             //var clusterLayoutScorer = new ClusterLayoutScorer(bitsLength);
 
             //var totalScore = angleLayoutScorer.Score(_map, layout)
@@ -164,8 +202,8 @@ namespace TrollRoom
             //var totalScore = distanceLayoutScorer.Score(map, layout);
 
             var totalScore = angleLayoutScorer.Score(map, layout);
-            totalScore += distanceLayoutScorer.Score(map, layout);
-            layout.FitnessScore = totalScore.Remap(0, 2, 0, 1);
+            //totalScore += distanceLayoutScorer.Score(map, layout);
+            layout.FitnessScore = totalScore.Remap(0, 1, 0, 1);
             //Debug.WriteLine(layout.FitnessScore);
         }
     }

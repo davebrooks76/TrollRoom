@@ -30,11 +30,11 @@ namespace TrollRoom
         {
             var coordinates = layout.Coordinates;
             var stringBuilder = new StringBuilder();
-            for (var y = 255; y >= 0; y--)
+            for (var y = 64; y >= 0; y--)
             {
                 if (y >= coordinates.Min() && y <= coordinates.Max())
                 {
-                    for (var x = 0; x <= 255; x++)
+                    for (var x = 0; x <= 64; x++)
                     {
                         if (x >= coordinates.Min() && x <= coordinates.Max())
                         {
