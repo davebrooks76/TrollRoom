@@ -67,22 +67,26 @@ namespace Window
             var generator = new GeneticLayoutGenerator(map);
             generator.GenerationComplete += new GeneticLayoutGenerator.GenerationCompleteHandler(OnGenerationComplete);
             new Thread(generator.Start).Start();
+            counter = 0;
         }
 
         private int counter = 0;
+        private double overallBestFitnessScore = 0;
+        private string overallBestLayoutTestString = string.Empty;
         private void OnGenerationComplete(GeneticLayoutGenerator generator, GeneticLayoutGenerator.GenerationCompleteEventArgs e)
         {
             counter++;
-            WriteToTextBox(e.BestLayoutTestString, counter);
+            UpdateUI(e.BestLayoutTestString, e.BestFitnessScore, counter);
         }
-        private void WriteToTextBox(string value, int count)
+        private void UpdateUI(string bestLayoutTestString, double bestFitnessScore, int count)
         {
             if (InvokeRequired)
             {
-                this.Invoke(new Action<string, int>(WriteToTextBox), new object[] { value, count });
+                this.Invoke(new Action<string, double, int>(UpdateUI), new object[] { bestLayoutTestString, bestFitnessScore, count });
                 return;
             }
-            textBox1.Text = value;
+            textBox1.Text = bestFitnessScore + Environment.NewLine;
+            textBox1.Text += bestLayoutTestString;
             textBox2.Text = count.ToString();
         }
     }

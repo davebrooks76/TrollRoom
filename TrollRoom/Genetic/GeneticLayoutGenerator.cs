@@ -33,16 +33,24 @@ namespace TrollRoom
         public class GenerationCompleteEventArgs : EventArgs
         {
             private string bestLayoutTestString;
+            private double bestFitnessScore;
 
-            public GenerationCompleteEventArgs(string bestLayoutTestString)
+            public GenerationCompleteEventArgs(string bestLayoutTestString, double bestFitnessScore)
             {
                 this.bestLayoutTestString = bestLayoutTestString;
+                this.bestFitnessScore = bestFitnessScore;
             }
 
             public string BestLayoutTestString
             {
                 get { return this.bestLayoutTestString; }
                 set { bestLayoutTestString = value; }
+            }
+
+            public double BestFitnessScore
+            {
+                get { return this.bestFitnessScore; }
+                set { bestFitnessScore = value; }
             }
         }
 
@@ -83,7 +91,7 @@ namespace TrollRoom
                 generationCounter++;
                 if (GenerationComplete != null)
                 {
-                    e = new GenerationCompleteEventArgs(bestLayout.ToTestString());
+                    e = new GenerationCompleteEventArgs(bestLayout.ToTestString(), maxScore);
                     GenerationComplete(this, e);
                 }
             }
