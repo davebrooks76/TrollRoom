@@ -13,10 +13,10 @@ namespace TrollRoom
 {
     public class GeneticLayoutGenerator : ILayoutGenerator
     {
-        private const int GenerationCountLimit = 20000;
-        private const int PopulationSize = 100; //even number
+        private const int GenerationCountLimit = 1000;
+        private const int PopulationSize = 300; //even number
         private const double CrossoverRate = 0.7;
-        private const double MutationRate = 0.001;
+        private const double MutationRate = 0.01;
 
         private readonly Map map;
         private Random random = new Random();
@@ -74,11 +74,14 @@ namespace TrollRoom
         public Layout GenerateLayout()
         {
             overallBestLayout = new Layout(map) {FitnessScore = 0};
+            var eliteLayouts = new List<Layout>();
 
             currentPopulation = CreatePopulation();
             while (generationCounter < GenerationCountLimit)
             {
-                newPopulation.Clear(); 
+                newPopulation.Clear();
+                newPopulation.AddRange(eliteLayouts);
+                eliteLayouts.Clear();
                 newPopulation = BreedPopulation();
                 var maxScore = newPopulation.Max(x => x.FitnessScore);
 
@@ -87,8 +90,10 @@ namespace TrollRoom
                 if (maxScore > overallBestLayout.FitnessScore)
                     overallBestLayout = newPopulation.First(x => x.FitnessScore == maxScore);
                 currentPopulation = new List<Layout>(newPopulation);
-                //Debug.WriteLine(newPopulation.Max(x=>x.FitnessScore));
+
+                eliteLayouts.AddRange(newPopulation.OrderByDescending(l => l.FitnessScore).Take(1));
                 generationCounter++;
+
                 if (GenerationComplete != null)
                 {
                     e = new GenerationCompleteEventArgs(bestLayout.ToTestString(), maxScore);
@@ -199,7 +204,7 @@ namespace TrollRoom
         {
             //var generalDirectionLayoutScorer = new GeneralDirectionLayoutScorer();
             var angleLayoutScorer = new AngleLayoutScorer();
-            //var collisionLayoutScorer = new CollisionLayoutScorer(bitsLength);
+            //var collisionLayoutScorer = new CollisionLayoutScorer();
             //var distanceLayoutScorer = new DistanceLayoutScorer(bitsLength);
             //var clusterLayoutScorer = new ClusterLayoutScorer(bitsLength);
 
@@ -211,6 +216,7 @@ namespace TrollRoom
 
             var totalScore = angleLayoutScorer.Score(map, layout);
             //totalScore += distanceLayoutScorer.Score(map, layout);
+            //totalScore += collisionLayoutScorer.Score(map, layout);
             layout.FitnessScore = totalScore.Remap(0, 1, 0, 1);
             //Debug.WriteLine(layout.FitnessScore);
         }
