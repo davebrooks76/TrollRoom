@@ -17,6 +17,7 @@ namespace TrollRoom
         private const int PopulationSize = 100; //even number
         private const double CrossoverRate = 0.7;
         private const double MutationRate = 0.01;
+        private const int MutationOffset = 3;
 
         private readonly Map map;
         private Random random = new Random();
@@ -160,7 +161,7 @@ namespace TrollRoom
                 var randomMutation = random.NextDouble();
                 if (randomMutation <= mutationRate)
                 {
-                    var modifier = random.Next(-3, 3);
+                    var modifier = random.Next(-MutationOffset, MutationOffset);
                     var newCoordinate = Convert.ToInt32(layout.Coordinates[i]) + modifier;
                     if (newCoordinate >= 0 && newCoordinate <= maxCoordinateValue)
                         layout.Coordinates[i] = (byte)newCoordinate;
