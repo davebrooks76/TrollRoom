@@ -18,6 +18,7 @@ namespace TrollRoom
         private const double CrossoverRate = 0.7;
         private const double MutationRate = 0.01;
         private const int MutationOffset = 3;
+        private const int EliteismRange = 5;
 
         private readonly Map map;
         private Random random = new Random();
@@ -94,7 +95,7 @@ namespace TrollRoom
                 }
                 currentPopulation = new List<Layout>(newPopulation);
 
-                eliteLayouts.AddRange(newPopulation.OrderByDescending(l => l.FitnessScore).Take(1));
+                eliteLayouts.AddRange(newPopulation.OrderByDescending(l => l.FitnessScore).Take(EliteismRange));
                 generationCounter++;
 
                 if (GenerationComplete != null)
